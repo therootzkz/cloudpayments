@@ -1,6 +1,10 @@
 package cloudpayments
 
-import "time"
+import (
+	"fmt"
+	"strings"
+	"time"
+)
 
 type PayWebhookRequest struct {
 	TransactionId                         int                    `json:"TransactionId"`
@@ -8,7 +12,7 @@ type PayWebhookRequest struct {
 	Currency                              string                 `json:"Currency"`
 	PaymentAmount                         string                 `json:"PaymentAmount"`
 	PaymentCurrency                       string                 `json:"PaymentCurrency"`
-	DateTime                              time.Time              `json:"DateTime"`
+	DateTime                              WebhookDateTime        `json:"DateTime"`
 	CardFirstSix                          string                 `json:"CardFirstSix"`
 	CardLastFour                          string                 `json:"CardLastFour"`
 	CardExpDate                           string                 `json:"CardExpDate"`
@@ -45,7 +49,7 @@ type FailWebhookRequest struct {
 	Currency                              string                 `json:"Currency"`
 	PaymentAmount                         string                 `json:"PaymentAmount"`
 	PaymentCurrency                       string                 `json:"PaymentCurrency"`
-	DateTime                              time.Time              `json:"DateTime"`
+	DateTime                              WebhookDateTime        `json:"DateTime"`
 	CardFirstSix                          string                 `json:"CardFirstSix"`
 	CardLastFour                          string                 `json:"CardLastFour"`
 	CardExpDate                           string                 `json:"CardExpDate"`
@@ -78,7 +82,7 @@ type RefundWebhookRequest struct {
 	TransactionId        int                    `json:"TransactionId"`
 	PaymentTransactionId int                    `json:"PaymentTransactionId"`
 	Amount               float64                `json:"Amount"`
-	DateTime             time.Time              `json:"DateTime"`
+	DateTime             WebhookDateTime        `json:"DateTime"`
 	OperationType        string                 `json:"OperationType"`
 	InvoiceId            string                 `json:"InvoiceId,omitempty"`
 	AccountId            string                 `json:"AccountId,omitempty"`
@@ -89,7 +93,7 @@ type RefundWebhookRequest struct {
 type CancelWebhookRequest struct {
 	TransactionId int                    `json:"TransactionId"`
 	Amount        float64                `json:"Amount"`
-	DateTime      time.Time              `json:"DateTime"`
+	DateTime      WebhookDateTime        `json:"DateTime"`
 	InvoiceId     string                 `json:"InvoiceId,omitempty"`
 	AccountId     string                 `json:"AccountId,omitempty"`
 	Email         string                 `json:"Email,omitempty"`
@@ -98,4 +102,16 @@ type CancelWebhookRequest struct {
 
 type WebhookResponse struct {
 	Code int `json:"code"`
+}
+
+type WebhookDateTime time.Time
+
+func (w *WebhookDateTime) UnmarshalJSON(bytes []byte) error {
+	s := strings.Trim(string(bytes), "\"")
+	t, err := time.Parse(time.DateTime, s)
+	if err != nil {
+		return fmt.Errorf("error parsing webhook date time: %w", err)
+	}
+	*w = WebhookDateTime(t)
+	return nil
 }
