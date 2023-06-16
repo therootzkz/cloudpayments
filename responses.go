@@ -39,6 +39,8 @@ type PaymentModel struct {
 	Token             string  `json:"Token,omitempty"`
 	JsonData          string  `json:"JsonData,omitempty"`
 	Name              string  `json:"Name,omitempty"`
+	ApplePay          bool    `json:"ApplePay,omitempty"`
+	AndroidPay        bool    `json:"AndroidPay,omitempty"`
 }
 
 type SubscriptionModel struct {
